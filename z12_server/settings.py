@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import logging
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -31,8 +30,6 @@ SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-logging.basicConfig(level=logging.DEBUG)
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -79,6 +76,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'z12_server.urls'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 TEMPLATES = [
     {
