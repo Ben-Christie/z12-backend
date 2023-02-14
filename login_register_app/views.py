@@ -60,6 +60,4 @@ def create_login(request):
             'errorMessage': error,
             'token': token
         }
-    )   
-
-
+    )  
