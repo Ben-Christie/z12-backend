@@ -13,10 +13,19 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import psycopg2
+
 
 # load .env file to access variables
 load_dotenv()
 django_secret_key = os.getenv('DJANGO_SECRET_KEY')
+
+# MySQL database variables
+postgresql_name = os.getenv('POSTGRESQL_DATABASE')
+postgresql_user = os.getenv('POSTGRESQL_USER')
+postgresql_password = os.getenv('POSTGRESQL_PASSWORD')
+postgresql_host = os.getenv('POSTGRESQL_HOST')
+postgresql_port = os.getenv('POSTGRESQL_PORT')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'login_register_app',
 ]
 
@@ -74,6 +84,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
 
 ROOT_URLCONF = 'z12_server.urls'
 
@@ -101,10 +117,15 @@ WSGI_APPLICATION = 'z12_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': postgresql_name,
+        'HOST': postgresql_host,
+        'PORT': postgresql_port,
+        'USER': postgresql_user,
+        'PASSWORD': postgresql_password,
     }
 }
+
 
 
 # Password validation
