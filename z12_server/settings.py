@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 import psycopg2
 
 
@@ -51,7 +52,6 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
-
 ALLOWED_HOSTS = []
 
 
@@ -89,7 +89,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'TOKEN_EXPIRE_TIME': timedelta(hours = 1)
 }
+
+AUTH_USER_MODEL = 'login_register_app.User'
 
 ROOT_URLCONF = 'z12_server.urls'
 

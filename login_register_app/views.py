@@ -1,11 +1,13 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password, check_password
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth import get_user_model
 from .models import User
 from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework.authtoken.models import Token
 import re
+
+User = get_user_model()
 
 @api_view(['POST'])
 def create_login(request):
@@ -47,11 +49,10 @@ def create_login(request):
             hashed_password = make_password(password)
 
             # save to database
-            user = get_user_model().objects.create(username = email, email = email, password = hashed_password)
+            user = User.objects.create(email = email, password = hashed_password)
 
             # create authentication token
-            if user:
-                token = Token.objects.create(user = user).key
+            token = Token.objects.create(user = user).key
 
     return JsonResponse(
         {
@@ -61,3 +62,43 @@ def create_login(request):
             'token': token
         }
     )  
+
+@api_view(['POST'])
+def verify_credentials(request):   
+    # parse json
+    serializer = LoginSerializer(data = request.data)
+
+    user_exists = False
+    password_is_correct = False
+    error = ''
+    token = ''
+
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+        
+        # try to access entry with inputted email
+        try:
+            user = get_user_model().objects.get(email = email)
+
+            user_exists = True
+
+            # confirm password is correct
+            if check_password(password, user.password):
+                password_is_correct = True
+            else:
+                error = 'Incorrect password'
+
+            # complete login action if valid
+            if user_exists and password_is_correct:
+                token = Token.objects.create(user = user).key
+
+        except User.DoesNotExist:
+            error = 'Invalid email address'
+    
+    return JsonResponse({
+        'userExists': user_exists,
+        'passwordIsCorrect': password_is_correct,
+        'errorMessage': error,
+        'token': token
+    })
