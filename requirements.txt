@@ -8,6 +8,7 @@ beautifulsoup4==4.11.1
 certifi==2022.9.24
 cffi==1.15.1
 charset-normalizer==2.1.1
+cryptography==39.0.1
 distlib==0.3.6
 Django==4.1.5
 django-cors-headers==3.13.0
@@ -19,6 +20,7 @@ funcy==1.18
 gunicorn==20.1.0
 h11==0.14.0
 idna==3.4
+jwt==1.3.1
 mysql-connector-python==8.0.32
 numpy==1.23.5
 outcome==1.2.0
@@ -26,8 +28,8 @@ pandas==1.5.2
 pipenv==2022.11.11
 platformdirs==2.5.4
 protobuf==3.20.3
-psycopg2==2.9.5
 pycparser==2.21
+PyJWT==2.6.0
 pymemcache==4.0.0
 pymongo==4.3.3
 PySocks==1.7.1

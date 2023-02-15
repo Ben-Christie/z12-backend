@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import User, AbstractBaseUser, BaseUserManager
 from django.db import models
 from rest_framework.authtoken.models import Token
 
@@ -26,7 +26,6 @@ class User(AbstractBaseUser):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=50)
     date_of_birth = models.DateField()
-    age = models.IntegerField()
     GENDER_OPTIONS = [
         ('Male', 'Male'),
         ('Female', 'Female')
@@ -34,6 +33,8 @@ class User(AbstractBaseUser):
     gender = models.CharField(max_length=6, choices=GENDER_OPTIONS, null=True)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=10)
+    is_athlete = models.BooleanField(default=True)
+    is_coach = models.BooleanField(default=False)
     last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
