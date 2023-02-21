@@ -127,6 +127,7 @@ def core_details(request):
         is_coach = serializer.validated_data['is_coach']
 
         # validate first_name and last_name
+        print(first_name, last_name, date_of_birth, gender, phone_number, is_athlete, is_coach)
 
         # regex pattern to ensure only letters, or valid special characters ['-]
         name_pattern = re.compile(r'^[a-zA-Z\' -]+$')
@@ -138,21 +139,22 @@ def core_details(request):
             errorMessage = 'Invalid Last Name'
             culprit = 'lastName'
 
+        # implement validation
         date_of_birth = datetime.datetime.strptime(date_of_birth, '%d/%m/%Y').date()
 
         # validate gender
         if not gender in ['Male', 'Female']:
-            errorMessage = 'Gender must be either Male or Female'
+            errorMessage = 'Invalid Gender'
             culprit = 'gender'
 
         # validate phone_number
 
-        # 32 = space, 40 = (, 41 = ), 43 = +, 45 = - (ASCII)
+        # (ASCII) 32 = space, 40 = (, 41 = ), 43 = +, 45 = -
         removable_chars = {32: None, 40: None, 41: None, 43: None, 45: None}
         phone_number = phone_number.translate(removable_chars)
 
         if not (phone_number.isdigit() and len(phone_number) in [9, 10]):
-            errorMessage = 'Invalid phone number'
+            errorMessage = 'Invalid Phone Number'
             culprit = 'phoneNumber'
 
     # get JWT token
