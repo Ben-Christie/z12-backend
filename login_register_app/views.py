@@ -2,17 +2,21 @@ from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth import get_user_model
-from .models import User
-from .serializers import RegisterSerializer, LoginSerializer, CoreDetailsSerializer
+from .models import User, UserRowingInfo
+from .serializers import RegisterSerializer, LoginSerializer, CoreDetailsSerializer, AthleteDetailsSerializer
 import re, datetime, jwt, os
 from dotenv import load_dotenv
 from django.shortcuts import get_object_or_404
+from get_dropdown_data_app.models import ClubInfo, RaceCategory
+from get_dropdown_data_app.serializers import RaceCategorySerializer
 
 # load .env file to access variables
 load_dotenv()
 jwt_secret_key = os.getenv('JWT_SECRET_KEY')
 
 User = get_user_model()
+
+# ------------------------------ Create New Account ------------------------------
 
 @api_view(['POST'])
 def create_login(request):
@@ -57,6 +61,8 @@ def create_login(request):
 
             # create JWT authentication token
             token = create_jwt_token(user)
+    else:
+        print(serializer.errors)
 
     return JsonResponse(
         {
@@ -66,6 +72,8 @@ def create_login(request):
             'token': token
         }
     )  
+
+# ------------------------------ Login Existing Account ------------------------------
 
 @api_view(['POST'])
 def verify_credentials(request):   
@@ -99,6 +107,8 @@ def verify_credentials(request):
 
         except User.DoesNotExist:
             error = 'Invalid email address'
+    else:
+        print(serializer.errors)
     
     return JsonResponse({
         'userExists': user_exists,
@@ -107,27 +117,37 @@ def verify_credentials(request):
         'token': token
     })
 
+# ------------------------------ User Details ------------------------------
+
 @api_view(['POST'])
 def core_details(request):
     # parse json
     serializer = CoreDetailsSerializer(data = request.data)
 
-    token = None
     user_id = None
     errorMessage = ''
     culprit = ''
 
     if serializer.is_valid():
-        first_name = serializer.validated_data['first_name']
-        last_name = serializer.validated_data['last_name']
-        date_of_birth = serializer.validated_data['date_of_birth']
-        gender = serializer.validated_data['gender']
-        phone_number = serializer.validated_data['phone_number']
-        is_athlete = serializer.validated_data['is_athlete']
-        is_coach = serializer.validated_data['is_coach']
+        data = serializer.validated_data
+
+        first_name = data['first_name']
+        last_name = data['last_name']
+        date_of_birth = data['date_of_birth']
+        gender = data['gender']
+        phone_number = data['phone_number']
+        athlete_or_coach = data['athlete_or_coach']
+        is_athlete = data['is_athlete']
+        is_coach = data['is_coach']
+
+        # adjust default values to prevent incorrect value stored
+        if athlete_or_coach == 'Coach' and is_coach == False:
+            is_coach = True
+            is_athlete = False
+        elif athlete_or_coach == 'Both' and is_coach == False:
+            is_coach = True
 
         # validate first_name and last_name
-        print(first_name, last_name, date_of_birth, gender, phone_number, is_athlete, is_coach)
 
         # regex pattern to ensure only letters, or valid special characters ['-]
         name_pattern = re.compile(r'^[a-zA-Z\' -]+$')
@@ -156,34 +176,11 @@ def core_details(request):
         if not (phone_number.isdigit() and len(phone_number) in [9, 10]):
             errorMessage = 'Invalid Phone Number'
             culprit = 'phoneNumber'
-
-    # get JWT token
-    auth_header = request.headers.get('Authorization')
-
-    # verify existance of JWT token
-    if auth_header:
-        token = auth_header.split(' ')[1]
     else:
-        return JsonResponse({
-            'error': 'JWT token not found'
-        }, status = 401)
-    
-    # decode token to extract user id
-    if token:
-        try:
-            decoded_token = jwt.decode(token, jwt_secret_key, algorithms=['HS256'])
-            user_id = decoded_token['id']
-        except jwt.ExpiredSignatureError:
-            return JsonResponse({
-                'error': 'token has expired'
-            }, status = 401)
-        except jwt.InvalidTokenError:
-            return JsonResponse({
-                'error': 'invalid token'
-            }, status = 401)
-    else:
-        errorMessage = 'Invalid token'
-        culprit = 'token'
+        print(serializer.errors)
+
+    # get token
+    user_id = get_jwt_token(request)
     
     # use token to update user if errorMessage and culprit = ''
     if errorMessage == '' and culprit == '' and user_id != None:
@@ -205,13 +202,75 @@ def core_details(request):
     return JsonResponse({
         'errorMessage': errorMessage,
         'culprit':culprit,
+        'isAthlete': is_athlete,
+    })
+
+# ------------------------------ Athlete Details ------------------------------
+
+@api_view(['Post'])
+def athlete_details(request):
+    serializer = AthleteDetailsSerializer(data = request.data)
+
+    user_id = None
+    errorMessage = ''
+    culprit = ''
+
+    if serializer.is_valid():
+        data = serializer.validated_data
+
+        race_category = data['race_category']
+        clubs = data['clubs']
+        coaches = data['coaches']
+        height = float(data['height'])
+        weight = float(data['weight'])
+        wingspan = float(data['wingspan'])
+
+        # verify that height, weight and wingspan are not less than zero
+        errorMessage, culprit = less_than_zero(height, 'Height', errorMessage, culprit)
+        errorMessage, culprit = less_than_zero(weight, 'Weight', errorMessage, culprit)
+        errorMessage, culprit = less_than_zero(wingspan, 'Wingspan', errorMessage, culprit)
+
+        # get race category max_weight, max_age and required_gender
+        category_object = RaceCategory.objects.filter(category=race_category).first()
+        serializer = RaceCategorySerializer(category_object)
+
+        max_weight = convert_none_to_99(serializer.data['max_weight'])
+        max_age = convert_none_to_99(serializer.data['max_age'])
+        required_gender = serializer.data['required_gender']
+
+        # get User with user_id from JWT token
+        user_id = get_jwt_token(request)
+
+        # get user
+        user = get_object_or_404(User, user_id = user_id)
+
+        user_age = get_user_age(user.date_of_birth)
+        user_gender = user.gender 
+
+        if user_age > max_age or user_gender != required_gender or  weight > max_weight:
+            errorMessage = 'You cannot race in this category'
+            culprit = 'Race Category'
+        
+        if errorMessage == '' and culprit == '' and user_id != None:
+            # save to database
+            UserRowingInfo.objects.create(user = user, race_category = race_category, club_names = clubs, coaches = coaches, height = height, weight = weight, wingspan = wingspan)
+
+    else:
+        print(serializer.errors)
+
+
+    return JsonResponse({
+        'success': True
     })
 
 
-# ---------------------------------- Helper Functions --------------------------------
+
+
+# ------------------------------ Helper Functions ------------------------------
 
 # create jwt token
 def create_jwt_token(user):
+    # exp = expiry time, iat = issued at time
     payload = {
         'id': user.user_id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=120),
@@ -221,3 +280,48 @@ def create_jwt_token(user):
     token = jwt.encode(payload, jwt_secret_key, algorithm='HS256')
 
     return token
+
+def less_than_zero(value, rep, errorMessage, culprit):
+    if value < 0:
+        errorMessage = 'Cannot be less than 0'
+        culprit = rep
+    
+    return [errorMessage, culprit]
+
+def get_jwt_token(request):
+    # get JWT token
+    token = ''
+    auth_header = request.headers.get('Authorization')
+
+    # verify existence of JWT token
+    if auth_header:
+        token = auth_header.split(' ')[1]
+    else:
+        return JsonResponse({
+            'error': 'JWT token not found'
+        }, status = 401)
+    
+    # decode token to extract user id
+    if token:
+        try:
+            decoded_token = jwt.decode(token, jwt_secret_key, algorithms=['HS256'])
+            user_id = decoded_token['id']
+            return user_id
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({
+                'error': 'token has expired'
+            }, status = 401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({
+                'error': 'invalid token'
+            }, status = 401)
+
+def get_user_age(date):
+    today = datetime.date.today()
+    age = today.year - date.year - ((today.month, today.day) < (date.month, date.day))
+    return age
+
+def convert_none_to_99(value):
+    if value is None:
+        value = 99
+    return value

@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'login_register_app',
+    'get_dropdown_data_app',
 ]
 
 MIDDLEWARE = [
