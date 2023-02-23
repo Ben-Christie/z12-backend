@@ -1,6 +1,6 @@
-from django.contrib.auth.models import User, AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from rest_framework.authtoken.models import Token
+from django.contrib.postgres.fields import ArrayField
 
 # create and save user objects using the UserManager
 class UserManager(BaseUserManager):
@@ -32,9 +32,10 @@ class User(AbstractBaseUser):
     ]
     gender = models.CharField(max_length=6, choices=GENDER_OPTIONS, null=True)
     email = models.EmailField(unique=True)
+    password = models.CharField(max_length=500)
     phone_number = models.CharField(max_length=10)
-    is_athlete = models.BooleanField(default=True)
-    is_coach = models.BooleanField(default=False)
+    is_athlete = models.BooleanField(default = True)
+    is_coach = models.BooleanField(default = False)
     last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -47,3 +48,23 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = 'users'
+
+class UserRowingInfo(models.Model):
+    user_rowing_info_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    club_names = ArrayField(models.CharField(max_length=100))
+    coaches = ArrayField(models.CharField(max_length=100))
+    race_category = models.CharField(max_length=50)
+    height = models.IntegerField(null=True)
+    weight = models.IntegerField(null=True)
+    wingspan = models.IntegerField(null=True)
+    DEVELOPMENT_OPTIONS = [
+        ('Elite', 'Elite'),
+        ('Pre-Elite', 'Pre-Elite'),
+        ('Developmental', 'Developmental')
+    ]
+    development_rating = models.CharField(max_length=13, choices=DEVELOPMENT_OPTIONS, null=True)
+
+    class Meta:
+        db_table = 'user_rowing_info'
+
