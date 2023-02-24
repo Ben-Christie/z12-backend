@@ -125,7 +125,7 @@ def core_details(request):
     serializer = CoreDetailsSerializer(data = request.data)
 
     user_id = None
-    errorMessage = ''
+    error_message = ''
     culprit = ''
 
     if serializer.is_valid():
@@ -153,10 +153,10 @@ def core_details(request):
         name_pattern = re.compile(r'^[a-zA-Z\' -]+$')
 
         if not re.match(name_pattern, first_name):
-            errorMessage = 'Invalid First Name'
+            error_message = 'Invalid First Name'
             culprit = 'firstName'
         elif not re.match(name_pattern, last_name):
-            errorMessage = 'Invalid Last Name'
+            error_message = 'Invalid Last Name'
             culprit = 'lastName'
 
         # implement validation
@@ -164,7 +164,7 @@ def core_details(request):
 
         # validate gender
         if not gender in ['Male', 'Female']:
-            errorMessage = 'Invalid Gender'
+            error_message = 'Invalid Gender'
             culprit = 'gender'
 
         # validate phone_number
@@ -174,7 +174,7 @@ def core_details(request):
         phone_number = phone_number.translate(removable_chars)
 
         if not (phone_number.isdigit() and len(phone_number) in [9, 10]):
-            errorMessage = 'Invalid Phone Number'
+            error_message = 'Invalid Phone Number'
             culprit = 'phoneNumber'
     else:
         print(serializer.errors)
@@ -183,7 +183,7 @@ def core_details(request):
     user_id = get_jwt_token(request)
     
     # use token to update user if errorMessage and culprit = ''
-    if errorMessage == '' and culprit == '' and user_id != None:
+    if error_message == '' and culprit == '' and user_id != None:
         # use user_id to update existing entry in the database
         user = get_object_or_404(User, user_id = user_id)
 
@@ -200,7 +200,7 @@ def core_details(request):
         user.save()
     
     return JsonResponse({
-        'errorMessage': errorMessage,
+        'errorMessage': error_message,
         'culprit':culprit,
         'isAthlete': is_athlete,
     })
@@ -212,7 +212,7 @@ def athlete_details(request):
     serializer = AthleteDetailsSerializer(data = request.data)
 
     user_id = None
-    errorMessage = ''
+    error_message = ''
     culprit = ''
 
     if serializer.is_valid():
@@ -226,9 +226,9 @@ def athlete_details(request):
         wingspan = float(data['wingspan'])
 
         # verify that height, weight and wingspan are not less than zero
-        errorMessage, culprit = less_than_zero(height, 'Height', errorMessage, culprit)
-        errorMessage, culprit = less_than_zero(weight, 'Weight', errorMessage, culprit)
-        errorMessage, culprit = less_than_zero(wingspan, 'Wingspan', errorMessage, culprit)
+        error_message, culprit = less_than_zero(height, 'height', error_message, culprit)
+        error_message, culprit = less_than_zero(weight, 'weight', error_message, culprit)
+        error_message, culprit = less_than_zero(wingspan, 'wingspan', error_message, culprit)
 
         # get race category max_weight, max_age and required_gender
         category_object = RaceCategory.objects.filter(category=race_category).first()
@@ -248,10 +248,10 @@ def athlete_details(request):
         user_gender = user.gender 
 
         if user_age > max_age or user_gender != required_gender or  weight > max_weight:
-            errorMessage = 'You cannot race in this category'
-            culprit = 'Race Category'
+            error_message = 'Entry forbidden'
+            culprit = 'race category'
         
-        if errorMessage == '' and culprit == '' and user_id != None:
+        if error_message == '' and culprit == '' and user_id != None:
             # save to database
             UserRowingInfo.objects.create(user = user, race_category = race_category, club_names = clubs, coaches = coaches, height = height, weight = weight, wingspan = wingspan)
 
@@ -260,7 +260,8 @@ def athlete_details(request):
 
 
     return JsonResponse({
-        'success': True
+        'errorMessage': error_message,
+        'culprit': culprit
     })
 
 
