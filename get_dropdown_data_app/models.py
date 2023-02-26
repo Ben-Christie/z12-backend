@@ -21,4 +21,4 @@ class RaceCategory(models.Model):
   max_weight = models.IntegerField()
 
   class Meta:
-    db_table = 'race_categories'
+    db_table = 'rowing_race_categories'
