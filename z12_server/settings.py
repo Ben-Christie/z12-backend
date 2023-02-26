@@ -58,7 +58,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000'
+    'http://localhost:3000',
 ]
 
 INSTALLED_APPS = [
@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'login_register_app',
     'get_dropdown_data_app',
+    'user_details_app',
 ]
 
 MIDDLEWARE = [
