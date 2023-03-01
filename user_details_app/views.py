@@ -17,7 +17,7 @@ jwt_secret_key = os.getenv('JWT_SECRET_KEY')
 
 @api_view(['POST'])
 def core_details(request):
-    # parse json
+    # serialize data
     serializer = CoreDetailsSerializer(data = request.data)
 
     user_id = None
@@ -76,7 +76,7 @@ def core_details(request):
         print(serializer.errors)
 
     # get token
-    user_id = get_jwt_token(request)
+    user_id = get_jwt_token_user_id(request)
     
     # use token to update user if errorMessage and culprit = ''
     if error_message == '' and culprit == '' and user_id != None:
@@ -105,6 +105,7 @@ def core_details(request):
 
 @api_view(['POST'])
 def athlete_details(request):
+    # serialize data
     serializer = AthleteDetailsSerializer(data = request.data)
 
     user_id = None
@@ -135,7 +136,7 @@ def athlete_details(request):
         required_gender = serializer.data['required_gender']
 
         # get User with user_id from JWT token
-        user_id = get_jwt_token(request)
+        user_id = get_jwt_token_user_id(request)
 
         # get user
         user = get_object_or_404(User, user_id = user_id)
@@ -180,7 +181,7 @@ def personal_bests(request):
         pb_6000 = data['pb_6000']
         pb_10000 = data['pb_10000']
 
-        user_id = get_jwt_token(request)
+        user_id = get_jwt_token_user_id(request)
 
         # get user
         user = get_object_or_404(User, user_id = user_id)
@@ -214,7 +215,7 @@ def less_than_zero(value, rep, errorMessage, culprit):
     
     return [errorMessage, culprit]
 
-def get_jwt_token(request):
+def get_jwt_token_user_id(request):
     # get JWT token
     token = ''
     auth_header = request.headers.get('Authorization')

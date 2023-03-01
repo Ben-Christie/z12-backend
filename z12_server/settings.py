@@ -28,6 +28,10 @@ postgresql_password = os.getenv('POSTGRESQL_PASSWORD')
 postgresql_host = os.getenv('POSTGRESQL_HOST')
 postgresql_port = os.getenv('POSTGRESQL_PORT')
 
+# import email and password
+my_email = os.getenv('MY_EMAIL')
+my_email_password = os.getenv('MY_EMAIL_PASSWORD')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -74,6 +78,7 @@ INSTALLED_APPS = [
     'login_register_app',
     'get_dropdown_data_app',
     'user_details_app',
+    'payment_processing_app',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +135,14 @@ DATABASES = {
         'PASSWORD': postgresql_password,
     }
 }
+
+# email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = my_email
+EMAIL_HOST_PASSWORD = my_email_password
 
 
 
