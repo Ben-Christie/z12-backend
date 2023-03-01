@@ -21,4 +21,5 @@ urlpatterns = [
     path('login-register/', include('login_register_app.urls')),
     path('get-data/', include('get_dropdown_data_app.urls')),
     path('add-user-details/', include('user_details_app.urls')),
+    path('payments/', include('payment_processing_app.urls')),
 ]
