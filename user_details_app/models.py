@@ -33,3 +33,11 @@ class UserPersonalBests(models.Model):
 
     class Meta:
         db_table = 'athlete_personal_bests'
+
+class UserProfilePicture(models.Model):
+    picture_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField()
+
+    class Meta:
+        db_table = 'user_profile_pictures'

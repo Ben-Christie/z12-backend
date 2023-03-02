@@ -1,13 +1,14 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
-from .models import UserRowingInfo, UserPersonalBests
+from .models import UserRowingInfo, UserPersonalBests, UserProfilePicture
 from login_register_app.models import User
-from .serializers import CoreDetailsSerializer, AthleteDetailsSerializer, PersonalBestsSerializer
+from .serializers import CoreDetailsSerializer, AthleteDetailsSerializer, PersonalBestsSerializer, ProfilePictureSerializer
 import re, datetime, jwt, os
 from django.shortcuts import get_object_or_404
 from get_dropdown_data_app.models import RaceCategory
 from get_dropdown_data_app.serializers import RaceCategorySerializer
 from dotenv import load_dotenv
+from django.templatetags.static import static
 
 # load .env file to access variables
 load_dotenv()
@@ -198,6 +199,39 @@ def personal_bests(request):
         culprit_list = (list(error.keys())[0]).split('_')
         culprit = f'{culprit_list[0]} {culprit_list[1]}'
 
+        print(serializer.errors)
+
+    return JsonResponse({
+        'errorMessage': error_message,
+        'culprit': culprit
+    })
+
+@api_view(['POST'])
+def update_profile_picture(request):
+    serializer = ProfilePictureSerializer(data = request.data)
+
+    user_id = None
+    error_message = ''
+    culprit = ''
+
+    for key, value in request.data.items():
+        if not value:
+            error_message = 'Upload image to submit'
+            culprit = 'profile picture'
+
+    if serializer.is_valid():
+        profile_picture = serializer.validated_data['profile_picture']
+
+        # get User with user_id from JWT token
+        user_id = get_jwt_token_user_id(request)
+
+        # get user
+        user = get_object_or_404(User, user_id = user_id)
+
+        # save to database
+        UserProfilePicture.objects.create(user = user, profile_picture = profile_picture)
+
+    else:
         print(serializer.errors)
 
     return JsonResponse({
