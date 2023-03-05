@@ -9,3 +9,4 @@ class RaceCategorySerializer(serializers.Serializer):
   max_age = serializers.IntegerField()
   required_gender = serializers.CharField()
   max_weight = serializers.IntegerField()
+  category_nickname = serializers.CharField()
