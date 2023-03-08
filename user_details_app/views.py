@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from get_dropdown_data_app.models import RaceCategory
 from get_dropdown_data_app.serializers import RaceCategorySerializer
 from dotenv import load_dotenv
-from django.templatetags.static import static
 
 # load .env file to access variables
 load_dotenv()
@@ -189,7 +188,7 @@ def personal_bests(request):
 
         # create new entry in database
         # values stored as timedelta objects that will need to be parsed to display
-        UserPersonalBests.objects.create(user = user, pb_100 = str(pb_100), pb_500 = pb_500, pb_1000 = pb_1000, pb_2000 = pb_2000, pb_6000 = pb_6000, pb_10000 = pb_10000)
+        UserPersonalBests.objects.create(user = user, pb_100 = pb_100, pb_500 = pb_500, pb_1000 = pb_1000, pb_2000 = pb_2000, pb_6000 = pb_6000, pb_10000 = pb_10000)
 
     else:
         error = serializer.errors
