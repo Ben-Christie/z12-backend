@@ -19,6 +19,7 @@ class RaceCategory(models.Model):
   max_age = models.IntegerField()
   required_gender = models.CharField(max_length=6, choices=GENDER_OPTIONS, null=True)
   max_weight = models.IntegerField()
+  category_nickname = models.CharField(max_length=50, null=True)
 
   class Meta:
     db_table = 'rowing_race_categories'

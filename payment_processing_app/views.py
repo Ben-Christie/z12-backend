@@ -138,7 +138,7 @@ def payment_processing(request):
         if payment_id:
             send_mail(
                 'Z12 Performance: Confirmation of Payment',
-                f'Dear {user.first_name} {user.last_name} \n\n This email is to confirm your payment of {total_amount} euro for: Z12 Performance Subscription. \n\n If you have any issues, please contact z12performance@gmail.com \n\n Thanks for being a member of our community! \n\n The Z12 Performance Team',
+                f'Dear {user.first_name} {user.last_name}\n\nThis email is to confirm your payment of {total_amount} euro for: Z12 Performance Subscription.\n\nIf you have any issues, please contact z12performance@gmail.com\n\nThanks for being a member of our community!\n\nThe Z12 Performance Team',
                 settings.EMAIL_HOST_USER,
                 [user.email],
                 fail_silently = False
