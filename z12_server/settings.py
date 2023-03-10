@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'populate_dashboard_app',
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -146,7 +147,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = my_email
 EMAIL_HOST_PASSWORD = my_email_password
 
-
+MEDIA_ROOT = '../media'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
