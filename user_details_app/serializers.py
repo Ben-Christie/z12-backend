@@ -27,4 +27,4 @@ class PersonalBestsSerializer(serializers.Serializer):
     pb_10000 = serializers.DurationField(required=False)
 
 class ProfilePictureSerializer(serializers.Serializer):
-    profile_picture = serializers.CharField()
+    profile_picture = serializers.ImageField()

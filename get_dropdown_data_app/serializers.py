@@ -5,8 +5,8 @@ class ClubInfoSerializer(serializers.Serializer):
   club_nickname = serializers.CharField()
 
 class RaceCategorySerializer(serializers.Serializer):
-  category = serializers.CharField()
-  max_age = serializers.IntegerField()
-  required_gender = serializers.CharField()
-  max_weight = serializers.IntegerField()
-  category_nickname = serializers.CharField()
+  category = serializers.CharField(required = False)
+  max_age = serializers.IntegerField(required = False)
+  required_gender = serializers.CharField(required = False)
+  max_weight = serializers.IntegerField(required = False)
+  category_nickname = serializers.CharField(required = False)

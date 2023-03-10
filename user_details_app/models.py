@@ -5,7 +5,7 @@ from login_register_app.models import User
 class UserRowingInfo(models.Model):
     user_rowing_info_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    club_names = ArrayField(models.CharField(max_length=100))
+    clubs = ArrayField(models.CharField(max_length=100))
     coaches = ArrayField(models.CharField(max_length=100))
     race_category = models.CharField(max_length=50)
     height = models.IntegerField(null=True)
@@ -37,7 +37,7 @@ class UserPersonalBests(models.Model):
 class UserProfilePicture(models.Model):
     picture_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField()
+    profile_picture = models.ImageField(null = True, blank = True)
 
     class Meta:
         db_table = 'user_profile_pictures'
