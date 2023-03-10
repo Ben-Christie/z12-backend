@@ -1,13 +1,16 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from django.http import JsonResponse
 from .models import UserRowingInfo, UserPersonalBests, UserProfilePicture
 from login_register_app.models import User
 from .serializers import CoreDetailsSerializer, AthleteDetailsSerializer, PersonalBestsSerializer, ProfilePictureSerializer
-import re, datetime, jwt, os
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils.text import get_valid_filename
+import re, datetime, jwt, os, magic
 from django.shortcuts import get_object_or_404
 from get_dropdown_data_app.models import RaceCategory
 from get_dropdown_data_app.serializers import RaceCategorySerializer
 from dotenv import load_dotenv
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # load .env file to access variables
 load_dotenv()
@@ -150,7 +153,7 @@ def athlete_details(request):
         
         if error_message == '' and culprit == '' and user_id != None:
             # save to database
-            UserRowingInfo.objects.create(user = user, race_category = race_category, club_names = clubs, coaches = coaches, height = height, weight = weight, wingspan = wingspan)
+            UserRowingInfo.objects.create(user = user, race_category = race_category, clubs = clubs, coaches = coaches, height = height, weight = weight, wingspan = wingspan)
 
     else:
         print(serializer.errors)
@@ -205,38 +208,46 @@ def personal_bests(request):
         'culprit': culprit
     })
 
+# ------------------------------ Profile Picture ------------------------------
+
 @api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
 def update_profile_picture(request):
+    
+    profile_picture_file = request.FILES.get('profile_picture')
+    file_name = profile_picture_file.name
+    content_type = profile_picture_file.content_type
+    allowed_content_types = ['image/bmp', 'image/gif', 'image/tiff', 'image/jpeg', 'image/png']
+
+    if content_type in allowed_content_types:
+        file_extension = content_type.split('/')[1]
+        profile_picture_file.name = file_name + '.' + file_extension
+
     serializer = ProfilePictureSerializer(data = request.data)
 
     user_id = None
     error_message = ''
     culprit = ''
 
-    for key, value in request.data.items():
-        if not value:
-            error_message = 'Upload image to submit'
-            culprit = 'profile picture'
-
     if serializer.is_valid():
-        profile_picture = serializer.validated_data['profile_picture']
+        profile_picture = request.FILES.get('profile_picture')
 
         # get User with user_id from JWT token
         user_id = get_jwt_token_user_id(request)
 
         # get user
-        user = get_object_or_404(User, user_id = user_id)
+        user = get_object_or_404(User, user_id=user_id)
 
         # save to database
-        UserProfilePicture.objects.create(user = user, profile_picture = profile_picture)
-
+        user_profile_picture = UserProfilePicture.objects.create(user=user, profile_picture=profile_picture)
     else:
         print(serializer.errors)
 
     return JsonResponse({
         'errorMessage': error_message,
-        'culprit': culprit
+        'culprit': culprit,
     })
+
 
 
 # ------------------------------ Helper Functions ------------------------------

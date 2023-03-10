@@ -23,4 +23,5 @@ urlpatterns = [
     path('add-user-details/', include('user_details_app.urls')),
     path('payments/', include('payment_processing_app.urls')),
     path('gather-metrics/', include('metric_gathering_app.urls')),
+    path('populate-dashboard/', include('populate_dashboard_app.urls')),
 ]

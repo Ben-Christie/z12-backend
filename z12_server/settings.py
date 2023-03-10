@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'user_details_app',
     'payment_processing_app',
     'metric_gathering_app',
+    'populate_dashboard_app',
 ]
 
 MIDDLEWARE = [
