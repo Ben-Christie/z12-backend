@@ -64,7 +64,7 @@ def get_user_picture(request):
 
     return JsonResponse({
         'imageData': base64_encoded,
-        'contentType': 'image/jpeg',
+        'contentType': content_type,
     })
 
 # ------------------------------ Personal Bests ------------------------------
