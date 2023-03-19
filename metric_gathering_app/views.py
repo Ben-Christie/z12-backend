@@ -3,10 +3,13 @@ from django.http import JsonResponse
 from .models import UserErgMetrics, UserSAndCMetrics
 from login_register_app.models import User
 from .serializers import ErgMetricsSerializer, SAndCMetricsSerializer
-import re, datetime, jwt, os
+import os
 from django.shortcuts import get_object_or_404
 from user_details_app.views import get_jwt_token_user_id
 from dotenv import load_dotenv
+from populate_dashboard_app.views import calculate_split, adjust_decimal_places
+from user_details_app.models import UserPersonalBests
+from user_details_app.serializers import PersonalBestsSerializer
 
 # load .env file to access variables
 load_dotenv()
@@ -30,7 +33,6 @@ def add_erg_metric(request):
 
         distance = data['distance']
         strokes_per_minute = data['strokes_per_minute']
-        split_500m = data['split_500m']
         time = data['time']
 
         if not distance in ['100m', '500m', '1000m', '2000m', '6000m', '10000m']:
@@ -41,10 +43,6 @@ def add_erg_metric(request):
             error_message = 'No s/m provided'
             culprit = 'strokesPerMinute'
         
-        if not split_500m:
-            error_message = 'No split provided'
-            culprit = 'split500m'
-        
         if not time:
             error_message = 'No time provided'
             culprit = 'time'
@@ -53,8 +51,29 @@ def add_erg_metric(request):
             # get user
             user = get_object_or_404(User, user_id = user_id)
 
-            # create new entry in database
-            UserErgMetrics.objects.create(user = user, distance = distance, strokes_per_minute = strokes_per_minute, split_500m = split_500m, time = time)
+            # parse string into hours, minutes, seconds
+            total_seconds = get_time_in_seconds(time)
+
+            formatted_values = add_erg_data(distance, total_seconds, time, user, strokes_per_minute)
+
+            # check if faster than pb
+            updated_distance = f"pb_{distance.replace('m', '')}" 
+
+            personal_best_object = UserPersonalBests.objects.filter(user_id = user.user_id).first()
+
+            personal_best = PersonalBestsSerializer(personal_best_object)
+
+            pb_in_seconds = get_time_in_seconds(personal_best.data[updated_distance])
+
+            if pb_in_seconds > total_seconds or pb_in_seconds == 0:
+                print(pb_in_seconds, total_seconds)
+                setattr(personal_best_object, updated_distance, formatted_values['time'])
+                serializer = PersonalBestsSerializer(personal_best_object)
+                personal_best_object.save()
+
+
+
+
     else:
         print(serializer.errors)
             
@@ -119,7 +138,7 @@ def add_s_and_c_metric(request):
             user = get_object_or_404(User, user_id = user_id)
 
             # create new entry in database
-            UserSAndCMetrics.objects.create(user = user, exercise = exercise, weight = weight, reps = reps)
+            UserSAndCMetrics.objects.create(user = user, exercise = exercise.lower(), weight = weight, reps = reps)
 
 
     else:
@@ -129,3 +148,29 @@ def add_s_and_c_metric(request):
         'errorMessage': error_message,
         'culprit': culprit
     })
+
+# ------------------------------ Helper Functions ------------------------------
+
+def get_time_in_seconds(time):
+    time_segments = time.split(':')
+            
+    hours = int(time_segments[0])
+    minutes = int(time_segments[1])
+    seconds = float(time_segments[2])
+
+    return (hours * 3600) + (minutes * 60) + seconds
+
+def add_erg_data(distance, total_seconds, time, user, strokes_per_minute):
+    # convert distance to number
+    new_distance = distance.replace('m', '')
+
+    # calculate split
+    split = calculate_split(float(new_distance), total_seconds)
+
+    #format
+    formatted_values = adjust_decimal_places(time, split)
+
+    # create new entry in database
+    UserErgMetrics.objects.create(user = user, distance = distance, strokes_per_minute = strokes_per_minute, split_500m = formatted_values['split'], time = formatted_values['time'], time_in_seconds = total_seconds)
+
+    return formatted_values

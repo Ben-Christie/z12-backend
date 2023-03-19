@@ -3,9 +3,7 @@ from django.http import JsonResponse
 from .models import UserRowingInfo, UserPersonalBests, UserProfilePicture
 from login_register_app.models import User
 from .serializers import CoreDetailsSerializer, AthleteDetailsSerializer, PersonalBestsSerializer, ProfilePictureSerializer
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.utils.text import get_valid_filename
-import re, datetime, jwt, os, magic
+import re, datetime, jwt, os
 from django.shortcuts import get_object_or_404
 from get_dropdown_data_app.models import RaceCategory
 from get_dropdown_data_app.serializers import RaceCategorySerializer

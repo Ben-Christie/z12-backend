@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from login_register_app.models import User
 
 class CoreDetailsSerializer(serializers.Serializer):
     first_name = serializers.CharField(required = True)
@@ -17,6 +18,8 @@ class AthleteDetailsSerializer(serializers.Serializer):
     weight = serializers.CharField(required=False, allow_blank=True)
     height = serializers.CharField(required=False, allow_blank=True)
     wingspan = serializers.CharField(required=False, allow_blank=True)
+    user_id = serializers.IntegerField(source='user.user_id', read_only=True) 
+
 
 class PersonalBestsSerializer(serializers.Serializer):
     pb_100 = serializers.DurationField()

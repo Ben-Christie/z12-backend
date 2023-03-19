@@ -24,4 +24,6 @@ urlpatterns = [
     path('payments/', include('payment_processing_app.urls')),
     path('gather-metrics/', include('metric_gathering_app.urls')),
     path('populate-dashboard/', include('populate_dashboard_app.urls')),
+    path('chart-data/', include('chart_data_app.urls')),
+    path('update-info/', include('update_info_app.urls')),
 ]
