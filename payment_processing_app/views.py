@@ -10,6 +10,7 @@ from user_details_app.views import get_jwt_token_user_id
 import stripe
 from django.core.mail import send_mail
 from django.conf import settings
+from user_details_app.models import UserPersonalBests, UserRowingInfo, UserProfilePicture
 
 # load .env file to access variables
 load_dotenv()
@@ -143,6 +144,16 @@ def payment_processing(request):
                 [user.email],
                 fail_silently = False
             )
+        
+        # as this is the final step in setting up the profile, we want to prepare for updating not 
+        # creations so we will create empty data rows associated with the user if they don't exist
+
+        try:
+            UserRowingInfo.objects.get_or_create(user_id = user.user_id)
+            UserPersonalBests.objects.get_or_create(user_id = user.user_id)
+        except Exception as e:
+            print(e)
+
     
     return JsonResponse({
         'errorMessage': error_message,

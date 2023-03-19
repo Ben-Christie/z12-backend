@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     'payment_processing_app',
     'metric_gathering_app',
     'populate_dashboard_app',
+    'chart_data_app',
+    'update_info_app',
 ]
 
 
