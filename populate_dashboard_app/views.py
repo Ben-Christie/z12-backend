@@ -2,13 +2,12 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from login_register_app.models import User
 from user_details_app.models import UserRowingInfo, UserProfilePicture, UserPersonalBests
-from login_register_app.serializers import UserDashboardSerializer
+from login_register_app.serializers import UserDashboardSerializer, UserDetailsModalSerializer
 from user_details_app.serializers import PersonalBestsSerializer, AthleteDetailsSerializer
 from get_dropdown_data_app.models import RaceCategory
 from get_dropdown_data_app.serializers import RaceCategorySerializer
 from user_details_app.views import get_jwt_token_user_id, get_user_age
 import datetime, mimetypes, base64, math
-import pandas as pd
 import numpy as np
 import scipy.stats as stats
 from scipy.stats import norm
@@ -181,10 +180,62 @@ def calculate_pb_rating(request):
         'myPBRatings': my_ratings,
     })
 
+# ------------------------------ Populate Details Modal ------------------------------
+
+@api_view(['POST'])
+def populate_details_modal(request):
+    my_user_id = get_jwt_token_user_id(request)
+
+    user_details_object = User.objects.get(user_id = my_user_id)
+    athletic_details_objects = UserRowingInfo.objects.get(user_id = my_user_id)
+
+    user_details = UserDetailsModalSerializer(user_details_object)
+    athletic_details = AthleteDetailsSerializer(athletic_details_objects)
+
+    first_name = user_details.data['first_name']
+    last_name = user_details.data['last_name']
+    dob = user_details.data['date_of_birth']
+    gender = user_details.data['gender']
+    is_athlete = user_details.data['is_athlete']
+    is_coach = user_details.data['is_coach']
+    phone_number = user_details.data['phone_number']
+    athlete_or_coach = ''
+
+    if is_athlete == True and is_coach == False:
+        athlete_or_coach = 'Athlete'
+    elif is_athlete == False and is_coach == True:
+        athlete_or_coach = 'Coach'
+    else:
+        athlete_or_coach = 'Both'
+
+    clubs = athletic_details.data['clubs']
+    coaches = athletic_details.data['coaches']
+    race_category = athletic_details.data['race_category']
+    weight = athletic_details.data['weight']
+    height = athletic_details.data['height']
+    wingspan = athletic_details.data['wingspan']
+
+
+    return JsonResponse({
+        'firstName': first_name,
+        'lastName': last_name,
+        'dateOfBirth': dob,
+        'gender': gender,
+        'phoneNumber': phone_number,
+        'athleteOrCoach': athlete_or_coach,
+        'clubs': clubs,
+        'coaches': coaches,
+        'raceCategory': race_category,
+        'weight': weight,
+        'height': height,
+        'wingspan': wingspan
+    })
+
+
+
 # ------------------------------ Helper Functions ------------------------------
 
 def calculate_split(distance, time_in_seconds):
-
     split_in_seconds = 0
 
     if (not time_in_seconds == 0) and distance == 100:

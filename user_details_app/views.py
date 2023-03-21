@@ -56,7 +56,6 @@ def core_details(request):
             error_message = 'Invalid Last Name'
             culprit = 'lastName'
 
-        # implement validation
         date_of_birth = datetime.datetime.strptime(date_of_birth, '%d/%m/%Y').date()
 
         # validate gender

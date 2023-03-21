@@ -6,6 +6,7 @@ class ErgMetricsSerializer(serializers.Serializer):
     split_500m = serializers.CharField(required = False)
     time = serializers.CharField()
     time_in_seconds = serializers.FloatField(required = False)
+    intensity_percentage = serializers.IntegerField(required = False)
     date = serializers.DateField(required = False)
 
 class SAndCMetricsSerializer(serializers.Serializer):

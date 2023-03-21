@@ -54,8 +54,6 @@ def add_erg_metric(request):
             # parse string into hours, minutes, seconds
             total_seconds = get_time_in_seconds(time)
 
-            formatted_values = add_erg_data(distance, total_seconds, time, user, strokes_per_minute)
-
             # check if faster than pb
             updated_distance = f"pb_{distance.replace('m', '')}" 
 
@@ -64,15 +62,14 @@ def add_erg_metric(request):
             personal_best = PersonalBestsSerializer(personal_best_object)
 
             pb_in_seconds = get_time_in_seconds(personal_best.data[updated_distance])
+            
+            # add to database
+            formatted_values = add_erg_data(distance, total_seconds, time, user, strokes_per_minute, pb_in_seconds)
 
             if pb_in_seconds > total_seconds or pb_in_seconds == 0:
-                print(pb_in_seconds, total_seconds)
                 setattr(personal_best_object, updated_distance, formatted_values['time'])
                 serializer = PersonalBestsSerializer(personal_best_object)
                 personal_best_object.save()
-
-
-
 
     else:
         print(serializer.errors)
@@ -160,7 +157,7 @@ def get_time_in_seconds(time):
 
     return (hours * 3600) + (minutes * 60) + seconds
 
-def add_erg_data(distance, total_seconds, time, user, strokes_per_minute):
+def add_erg_data(distance, total_seconds, time, user, strokes_per_minute, pb_in_seconds):
     # convert distance to number
     new_distance = distance.replace('m', '')
 
@@ -170,7 +167,28 @@ def add_erg_data(distance, total_seconds, time, user, strokes_per_minute):
     #format
     formatted_values = adjust_decimal_places(time, split)
 
+    # generate intensity metric for the period that the session occurs
+    
+    # calculate wattage generated from personal best 500m split
+    pb_split = calculate_split(float(new_distance), pb_in_seconds)
+
+    pb_watts = calculate_watts(convert_to_seconds(pb_split))
+    session_watts = calculate_watts(convert_to_seconds(split))
+
+    intensity = int((session_watts / pb_watts) * 100)
+
     # create new entry in database
-    UserErgMetrics.objects.create(user = user, distance = distance, strokes_per_minute = strokes_per_minute, split_500m = formatted_values['split'], time = formatted_values['time'], time_in_seconds = total_seconds)
+    UserErgMetrics.objects.create(user = user, distance = distance, strokes_per_minute = strokes_per_minute, split_500m = formatted_values['split'], time = formatted_values['time'], time_in_seconds = total_seconds, intensity_percentage = intensity)
 
     return formatted_values
+
+def calculate_watts(split):
+    return 2.8 / (split ** 3)
+
+def convert_to_seconds(time):
+    time_segments = time.split(':')
+
+    minutes = int(time_segments[0])
+    seconds = float(time_segments[1])
+
+    return (minutes * 60) + seconds
