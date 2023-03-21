@@ -10,6 +10,7 @@ class UserErgMetrics(models.Model):
     split_500m = models.CharField(max_length=20)
     time = models.CharField(max_length=20)
     time_in_seconds = models.FloatField()
+    intensity_percentage = models.IntegerField()
     date = models.DateField(auto_now=True)
 
     class Meta:

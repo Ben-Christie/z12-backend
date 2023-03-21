@@ -152,7 +152,7 @@ def payment_processing(request):
             UserRowingInfo.objects.get_or_create(user_id = user.user_id)
             UserPersonalBests.objects.get_or_create(user_id = user.user_id)
         except Exception as e:
-            print(e)
+            print('Error: ', e)
 
     
     return JsonResponse({
