@@ -174,7 +174,7 @@ def calculate_pb_rating(request):
     for key, _ in my_personal_bests['pb_times'].items():
         time_keys.append(key)
     
-    means, my_ratings = calculate_chart_data(all_pbs, my_personal_bests['pb_times'], time_keys)
+    means, my_ratings = calculate_user_ratings(all_pbs, my_personal_bests['pb_times'], time_keys)
 
     return JsonResponse({
         'myPBRatings': my_ratings,
@@ -295,7 +295,7 @@ def get_time_in_seconds(time):
 
     return (hours * 3600) + (minutes * 60) + seconds
 
-def calculate_chart_data(all_pbs, my_pbs, time_categories):
+def calculate_user_ratings(all_pbs, my_pbs, time_categories):
     # z = (X – μ) / σ
     # X = a single data point, μ = mean and σ = standard deviation
 
