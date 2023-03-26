@@ -286,12 +286,25 @@ def adjust_decimal_places(value, split):
         'split': split
     }
 
+def get_time_in_seconds(time):
+    time_segments = time.split(':')
+
+    hours = int(time_segments[0])
+    minutes = int(time_segments[1])
+    seconds = float(time_segments[2])
+
+    return (hours * 3600) + (minutes * 60) + seconds
+
 def calculate_chart_data(all_pbs, my_pbs, time_categories):
     # z = (X – μ) / σ
     # X = a single data point, μ = mean and σ = standard deviation
 
     means = []
     my_ratings = []
+    all_personal_bests = []
+
+    for set_of_pbs in all_pbs:
+        all_personal_bests.append({k: v for k, v in set_of_pbs.items() if v != '00:00:00'})
 
     # loop through for the number of time categories to get
     for i in range(len(time_categories)):
@@ -299,26 +312,20 @@ def calculate_chart_data(all_pbs, my_pbs, time_categories):
 
         new_time_list = []
         my_data_index = None
+        my_time = None
 
-        for i, pb_times in enumerate(all_pbs):
-            time = pb_times[time_category]
-            my_time = my_pbs[time_category]
+        for i, pb_times in enumerate(all_personal_bests):
+            if time_category in pb_times:
+                time = get_time_in_seconds(pb_times[time_category])
+                my_time = get_time_in_seconds(my_pbs[time_category])
+                new_time_list.append(time)
 
-            if time == my_time and my_data_index == None:
-                my_data_index = i
+        # calculate my_index
+        if my_time != None and my_time != '00:00:00':
+            for i, time in enumerate(new_time_list):
+                if my_data_index == None and time == my_time:
+                    my_data_index = i
 
-            # parse string into hours, minutes, seconds
-            time_segments = time.split(':')
-            
-            hours = int(time_segments[0])
-            minutes = int(time_segments[1])
-            seconds = float(time_segments[2])
-
-            # convert to seconds
-            total_seconds = (hours * 3600) + (minutes * 60) + seconds
-
-            new_time_list.append(total_seconds)
-    
         # calculate mean and standard deviation
         mean = np.mean(new_time_list)
         
@@ -338,6 +345,6 @@ def calculate_chart_data(all_pbs, my_pbs, time_categories):
                 percentile = percentiles[i]
 
         means.append(round(mean, 2))
-        my_ratings.append(str(int(percentile))) 
+        my_ratings.append(str(int(percentile)))
 
     return means, my_ratings

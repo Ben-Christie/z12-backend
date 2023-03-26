@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from populate_dashboard_app.views import calculate_split, adjust_decimal_places
 from user_details_app.models import UserPersonalBests
 from user_details_app.serializers import PersonalBestsSerializer
+from populate_dashboard_app.views import get_time_in_seconds
 
 # load .env file to access variables
 load_dotenv()
@@ -151,17 +152,6 @@ def add_s_and_c_metric(request):
     })
 
 # ------------------------------ Helper Functions ------------------------------
-
-
-def get_time_in_seconds(time):
-    time_segments = time.split(':')
-
-    hours = int(time_segments[0])
-    minutes = int(time_segments[1])
-    seconds = float(time_segments[2])
-
-    return (hours * 3600) + (minutes * 60) + seconds
-
 
 def add_erg_data(distance, total_seconds, time, user, strokes_per_minute, pb_in_seconds):
     # convert distance to number

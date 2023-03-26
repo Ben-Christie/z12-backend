@@ -9,7 +9,8 @@ from user_details_app.views import convert_none_to_99, get_jwt_token_user_id, ge
 from dotenv import load_dotenv
 from user_details_app.models import UserPersonalBests, UserRowingInfo
 from user_details_app.serializers import PersonalBestsSerializer 
-from metric_gathering_app.views import add_erg_data, get_time_in_seconds
+from metric_gathering_app.views import add_erg_data
+from populate_dashboard_app.views import get_time_in_seconds
 from .serializers import DetailsModalSerializer
 
 # load .env file to access variables
