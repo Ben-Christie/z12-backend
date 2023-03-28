@@ -22,11 +22,11 @@ load_dotenv()
 django_secret_key = os.getenv('DJANGO_SECRET_KEY')
 
 # MySQL database variables
-postgresql_name = os.getenv('POSTGRESQL_DATABASE')
-postgresql_user = os.getenv('POSTGRESQL_USER')
-postgresql_password = os.getenv('POSTGRESQL_PASSWORD')
-postgresql_host = os.getenv('POSTGRESQL_HOST')
-postgresql_port = os.getenv('POSTGRESQL_PORT')
+postgresql_name = os.getenv('PGDATABASE')
+postgresql_user = os.getenv('PGUSER')
+postgresql_password = os.getenv('PGPASSWORD')
+postgresql_host = os.getenv('PGHOST')
+postgresql_port = os.getenv('PGPORT')
 
 # import email and password
 my_email = os.getenv('MY_EMAIL')
