@@ -24,7 +24,7 @@ class User(AbstractBaseUser):
     user_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=50)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True)
     GENDER_OPTIONS = [
         ('Male', 'Male'),
         ('Female', 'Female')
