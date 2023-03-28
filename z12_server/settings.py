@@ -56,13 +56,18 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'z12-backend-production.up.railway.app'
+]
 
 
 # Application definition
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
+    'https://z12-frontend-production.up.railway.app'
 ]
 
 INSTALLED_APPS = [
