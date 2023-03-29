@@ -154,8 +154,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = my_email
 EMAIL_HOST_PASSWORD = my_email_password
 
-MEDIA_ROOT = '../media'
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
