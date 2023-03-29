@@ -319,8 +319,6 @@ def calculate_user_ratings(all_pbs, my_pbs, time_categories):
                 pb_time = pb_times[time_category]
                 user_time = my_pbs[time_category]
                 
-                print(pb_time, user_time)
-                
                 if pb_time != None and user_time != None:
                     time = get_time_in_seconds(pb_time)
                     my_time = get_time_in_seconds(user_time)
@@ -331,7 +329,6 @@ def calculate_user_ratings(all_pbs, my_pbs, time_categories):
             for i, time in enumerate(new_time_list):
                 if my_data_index == None and time == my_time:
                     my_data_index = i
-                    print(my_data_index)
 
         # calculate mean and standard deviation
         mean = np.mean(new_time_list)
