@@ -316,9 +316,13 @@ def calculate_user_ratings(all_pbs, my_pbs, time_categories):
 
         for i, pb_times in enumerate(all_personal_bests):
             if time_category in pb_times:
-                time = get_time_in_seconds(pb_times[time_category])
-                my_time = get_time_in_seconds(my_pbs[time_category])
-                new_time_list.append(time)
+                pb_time = pb_times[time_category]
+                user_time = my_pbs[time_category]
+                
+                if pb_time != None and user_time != None:
+                    time = get_time_in_seconds(pb_time)
+                    my_time = get_time_in_seconds(user_time)
+                    new_time_list.append(time)
 
         # calculate my_index
         if my_time != None and my_time != '00:00:00':
