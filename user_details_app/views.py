@@ -56,7 +56,18 @@ def core_details(request):
             error_message = 'Invalid Last Name'
             culprit = 'lastName'
 
-        date_of_birth = datetime.datetime.strptime(date_of_birth, '%d/%m/%Y').date()
+
+        try:
+            date_of_birth = datetime.datetime.strptime(date_of_birth, '%d/%m/%Y').date()
+        except Exception as e:
+            print('Error:', e)
+            
+            return JsonResponse({
+                'errorMessage': 'Invalid date',
+                'culprit': 'dateOfBirth',
+                'isAthlete': is_athlete,
+            })
+        
 
         # validate gender
         if not gender in ['Male', 'Female']:
@@ -74,7 +85,7 @@ def core_details(request):
             culprit = 'phoneNumber'
     else:
         print(serializer.errors)
-
+        
     # get token
     user_id = get_jwt_token_user_id(request)
     
@@ -94,6 +105,8 @@ def core_details(request):
 
         # save
         user.save()
+    else:
+        print(serializer.errors())
     
     return JsonResponse({
         'errorMessage': error_message,
@@ -154,6 +167,9 @@ def athlete_details(request):
 
     else:
         print(serializer.errors)
+        
+        
+        
 
 
     return JsonResponse({
