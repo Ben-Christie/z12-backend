@@ -8,7 +8,7 @@ from .serializers import ClubInfoSerializer, RaceCategorySerializer
 
 @api_view(['GET'])
 def get_club_names(request):
-  clubs = ClubInfo.objects.all()
+  clubs = ClubInfo.objects.order_by('club_name').all()
   serializer = ClubInfoSerializer(clubs, many = True)
 
   club_names = [club['club_name'] for club in serializer.data]
@@ -30,7 +30,7 @@ def get_race_category_names(request):
 
 @api_view(['GET'])
 def get_coach_names(request):
-  coaches = User.objects.filter(is_coach=True)
+  coaches = User.objects.filter(is_coach=True).order_by('first_name').all()
   coach_first_names = [coach.first_name for coach in coaches]
   coach_last_names = [coach.last_name for coach in coaches]
 
