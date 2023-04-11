@@ -106,7 +106,7 @@ def core_details(request):
         # save
         user.save()
     else:
-        print(serializer.errors())
+        print(serializer.errors)
     
     return JsonResponse({
         'errorMessage': error_message,

@@ -168,8 +168,6 @@ def add_erg_data(distance, total_seconds, time, user, strokes_per_minute, pb_in_
     # calculate wattage generated from personal best 500m split
     pb_split = calculate_split(float(new_distance), pb_in_seconds)
 
-    print(pb_split)
-
     pb_watts = calculate_watts(convert_to_seconds(pb_split))
     session_watts = calculate_watts(convert_to_seconds(split))
 
