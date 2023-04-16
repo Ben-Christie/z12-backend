@@ -44,6 +44,7 @@ ALLOWED_HOSTS = [
     'z12-backend-production.up.railway.app'
 ]
 
+MEDIA_ROOT = '../media'
 
 # Application definition
 
@@ -88,7 +89,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'TOKEN_EXPIRE_TIME': timedelta(hours = 1)
+    'TOKEN_EXPIRE_TIME': timedelta(hours=1)
 }
 
 AUTH_USER_MODEL = 'login_register_app.User'
